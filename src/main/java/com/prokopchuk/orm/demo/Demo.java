@@ -1,12 +1,10 @@
 package com.prokopchuk.orm.demo;
 
-import com.prokopchuk.orm.Session;
 import com.prokopchuk.orm.SessionFactory;
 import com.prokopchuk.orm.demo.entity.Product;
 import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.sql.DataSource;
-import java.io.IOException;
+import java.math.BigDecimal;
 
 public class Demo {
     public static void main(String[] args) {
@@ -17,14 +15,17 @@ public class Demo {
 
         SessionFactory sessionFactory = new SessionFactory(dataSource);
 
-        Session session = sessionFactory.creatSession();
+        try (var session = sessionFactory.creatSession()) {
+            Product product1 = session.find(Product.class, 1);
+            System.out.println(product1);
 
-        Product product1 = session.find(Product.class, 1);
-        System.out.println(product1);
+            product1.setName("ps3v");
+            product1.setPrice(BigDecimal.valueOf(600));
+        }
 
-        final Product product2 = session.find(Product.class, 1);
-
-        System.out.println(product2);
-
+        try (var session = sessionFactory.creatSession();) {
+            Product updatedProduct = session.find(Product.class, 1);
+            System.out.println(updatedProduct);
+        }
     }
 }
